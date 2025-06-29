@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://cedricRugamba.com/sitemap.xml
+
+# Allow all search engines to crawl the entire site
+User-agent: *
+Disallow: 
+
+# Specific instructions for major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Crawl delay (optional - helps prevent overloading the server)
+Crawl-delay: 1 
