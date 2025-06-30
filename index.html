@@ -452,6 +452,29 @@
             transform: translateX(0) scale(1);
         }
         
+        /* Contact form enhancements */
+        .focused {
+            transform: translateY(-2px);
+            transition: transform 0.3s ease;
+        }
+        
+        .focused label {
+            color: #10b981;
+        }
+        
+        .focused input,
+        .focused textarea,
+        .focused select {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+        
+        /* Toast notifications */
+        .toast-notification {
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
         /* Mobile bottom navigation padding */
         @media (max-width: 1024px) {
             body {
@@ -1187,31 +1210,50 @@
 
                     <!-- Contact Form -->
                     <div class="bg-secondary-dark p-8 rounded-2xl shadow-lg">
-                        <form class="space-y-6" action="#" method="POST" name="contact" netlify>
+                        <form id="contactForm" class="space-y-6">
+                            <div>
+                                <label for="name" class="block text-white font-medium mb-2">Full Name *</label>
+                                <input type="text" id="name" name="name" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="John Doe">
+                            </div>
+                            
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label for="firstName" class="block text-white font-medium mb-2">First Name</label>
-                                    <input type="text" id="firstName" name="firstName" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="John" aria-describedby="firstName-help">
+                                    <label for="email" class="block text-white font-medium mb-2">Email *</label>
+                                    <input type="email" id="email" name="email" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="john@example.com">
                                 </div>
                                 <div>
-                                    <label for="lastName" class="block text-white font-medium mb-2">Last Name</label>
-                                    <input type="text" id="lastName" name="lastName" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="Doe" aria-describedby="lastName-help">
+                                    <label for="phone" class="block text-white font-medium mb-2">Phone</label>
+                                    <input type="tel" id="phone" name="phone" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="+250788863783">
                                 </div>
                             </div>
                             
                             <div>
-                                <label for="email" class="block text-white font-medium mb-2">Email</label>
-                                <input type="email" id="email" name="email" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="john@example.com" aria-describedby="email-help">
+                                <label for="company" class="block text-white font-medium mb-2">Company</label>
+                                <input type="text" id="company" name="company" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="Your Company Name">
                             </div>
                             
                             <div>
-                                <label for="subject" class="block text-white font-medium mb-2">Subject</label>
-                                <input type="text" id="subject" name="subject" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="Enterprise Architecture Consultation" aria-describedby="subject-help">
+                                <label for="subject" class="block text-white font-medium mb-2">Service Interest *</label>
+                                <select id="subject" name="subject" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green">
+                                    <option value="">Select a service...</option>
+                                    <option value="IT Strategy">IT Strategy & Consulting</option>
+                                    <option value="Enterprise Architecture">Enterprise & Solution Architecture</option>
+                                    <option value="Systems Design">Systems Design & Implementation</option>
+                                    <option value="IT Infrastructure">IT Infrastructure & Operations</option>
+                                    <option value="Cloud Migration">Cloud Migration & Strategy</option>
+                                    <option value="Digital Transformation">Digital Transformation</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            
+                            <div id="otherSubjectContainer" style="display: none;">
+                                <label for="otherSubject" class="block text-white font-medium mb-2">Please specify</label>
+                                <input type="text" id="otherSubject" name="otherSubject" class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="Please describe your specific needs">
                             </div>
                             
                             <div>
-                                <label for="message" class="block text-white font-medium mb-2">Message</label>
-                                <textarea rows="5" id="message" name="message" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="Tell me about your enterprise architecture or cloud migration needs..." aria-describedby="message-help"></textarea>
+                                <label for="message" class="block text-white font-medium mb-2">Message *</label>
+                                <textarea rows="5" id="message" name="message" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-accent-green" placeholder="Tell me about your enterprise architecture or cloud migration needs..."></textarea>
                             </div>
                             
                             <button type="submit" class="w-full bg-accent-green hover:bg-green-600 text-white py-4 px-6 rounded-full font-semibold transition-colors shadow-lg transform hover:scale-105" aria-label="Send message to Cedric RUGAMBA">

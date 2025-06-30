@@ -289,4 +289,198 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Contact Form functionality
+    const contactForm = document.getElementById('contactForm');
+    const subjectSelect = document.getElementById('subject');
+    const otherSubjectContainer = document.getElementById('otherSubjectContainer');
+    const formInputs = document.querySelectorAll('#contactForm input, #contactForm textarea, #contactForm select');
+    
+    // Show/hide "Other" subject field
+    if (subjectSelect && otherSubjectContainer) {
+        subjectSelect.addEventListener('change', function() {
+            if (this.value === 'Other') {
+                otherSubjectContainer.style.display = 'block';
+                document.getElementById('otherSubject').required = true;
+            } else {
+                otherSubjectContainer.style.display = 'none';
+                document.getElementById('otherSubject').required = false;
+                document.getElementById('otherSubject').value = '';
+            }
+        });
+    }
+    
+    // Add focus effects to form inputs
+    formInputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.parentElement.classList.remove('focused');
+            }
+        });
+    });
+    
+    // Toast notification function
+    function showToast(message, type = 'info') {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.toast-notification');
+        existingToasts.forEach(toast => toast.remove());
+        
+        // Create toast element
+        const toast = document.createElement('div');
+        toast.className = `toast-notification fixed top-4 right-4 z-50 max-w-sm p-4 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full`;
+        
+        // Set background color based on type
+        if (type === 'success') {
+            toast.className += ' bg-accent-green text-white';
+        } else if (type === 'error') {
+            toast.className += ' bg-red-500 text-white';
+        } else {
+            toast.className += ' bg-gray-700 text-white';
+        }
+        
+        // Toast content
+        toast.innerHTML = `
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} text-lg"></i>
+                </div>
+                <div class="ml-3 w-0 flex-1">
+                    <p class="text-sm font-medium">${message}</p>
+                </div>
+                <div class="ml-4 flex-shrink-0 flex">
+                    <button class="inline-flex text-white hover:text-gray-200 focus:outline-none" onclick="this.parentElement.parentElement.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // Add to page
+        document.body.appendChild(toast);
+        
+        // Trigger animation
+        setTimeout(() => {
+            toast.classList.remove('translate-x-full');
+        }, 100);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (toast.parentElement) {
+                        toast.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+    }
+    
+    // Contact form submission
+    if (contactForm) {
+        contactForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const company = document.getElementById('company').value || 'Not specified';
+            const phone = document.getElementById('phone').value || 'Not specified';
+            const subject = document.getElementById('subject').value;
+            const otherSubject = document.getElementById('otherSubject')?.value || '';
+            const message = document.getElementById('message').value;
+            
+            // Simple form validation
+            if (!name || !email || !subject || !message) {
+                showToast('Please fill out all required fields.', 'error');
+                return;
+            }
+            
+            // Update UI to show loading state
+            const submitBtn = contactForm.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+            
+            // Prepare the email body (formatted for better readability)
+            const subjectText = subject === 'Other' ? otherSubject : subject;
+            const emailSubject = `Portfolio Inquiry: ${subjectText}`;
+            const emailBody = `
+                New Contact Form Submission
+                ---------------------------
+
+                Name: ${name}
+                Email: ${email}
+                Company: ${company}
+                Phone: ${phone}
+                Service Interest: ${subjectText}
+
+                Message:
+                ${message}
+
+                ---------------------------
+                Sent from Cedric RUGAMBA's Portfolio
+                `;
+            
+            try {
+                // Send the data to the API
+                const response = await fetch('https://backend-production-ee6bf.up.railway.app/api/submit/contact', {
+                    method: 'POST',
+                    headers: {
+                        'accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'POST'
+                    },
+                    credentials: 'omit', // Don't send cookies for cross-origin requests
+                    mode: 'cors', // Enable CORS
+                    body: JSON.stringify({
+                        recipient: 'rugambacedric@gmail.com',
+                        subject: emailSubject,
+                        body: emailBody,
+                        priority: 2,
+                        notification_type: 'email',
+                        source: 'Main Portfolio'
+                    })
+                });
+                
+                if (response.ok) {
+                    // Success - form submitted successfully
+                    showToast('Your message has been sent successfully. I\'ll get back to you soon!', 'success');
+                    contactForm.reset();
+                    
+                    // Hide otherSubject field if it was visible
+                    if (otherSubjectContainer) {
+                        otherSubjectContainer.style.display = 'none';
+                    }
+                    
+                    // Remove focused class from all inputs
+                    formInputs.forEach(input => {
+                        input.parentElement.classList.remove('focused');
+                    });
+                } else {
+                    // API error response
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `Error: ${response.status} - Failed to send message`);
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                
+                // Network errors don't have response.json()
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    showToast('Unable to connect to the server. Please check your internet connection and try again.', 'error');
+                } else {
+                    showToast(error.message || 'Failed to send message. Please try again later.', 'error');
+                }
+            } finally {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send Message';
+            }
+        });
+    }
+
 }); 
