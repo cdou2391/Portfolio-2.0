@@ -427,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             try {
                 // Send the data to the API
-                const response = await fetch('https://backend-production-ee6bf.up.railway.app/api/submit/contact', {
+                const response = await fetch('shttps://bff.corecrest.tech/api/submit/contact', {
                     method: 'POST',
                     headers: {
                         'accept': 'application/json',
